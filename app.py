@@ -51,11 +51,12 @@ def register_student():
         email = request.form["email"]
         password = request.form["password"]
         contact = request.form["contact"]
+        resume = request.form["resume"]
         db = get_db()
         db.execute("""
-        INSERT INTO students(name,email,password,contact)
-        VALUES(?,?,?,?)
-        """,(name,email,password,contact))
+        INSERT INTO students(name,email,password,contact,resume)
+        VALUES(?,?,?,?,?)
+        """,(name,email,password,contact,resume))
         db.commit()
         return redirect("/")
     return render_template("register_student.html")
@@ -234,14 +235,21 @@ def update_status(app_id, status):
 
 @app.route("/company/applications/<int:drive_id>")
 def company_applications(drive_id):
+    if "company" not in session:
+        return redirect("/")
     db = get_db()
     apps = db.execute("""
-    SELECT applications.*, students.name
+    SELECT applications.*, 
+           students.name, 
+           students.resume,
+           drives.job_title
     FROM applications
     JOIN students ON applications.student_id = students.id
-    WHERE drive_id=?
-    """,(drive_id,)).fetchall()
-    return render_template("company/applications.html",apps=apps)
+    JOIN drives ON applications.drive_id = drives.id
+    WHERE drives.company_id=? 
+    AND drives.id=?
+    """, (session["company"], drive_id)).fetchall()
+    return render_template("company/applications.html", apps=apps)
 
 @app.route("/company/create_drive", methods=["GET","POST"])
 def create_drive():
@@ -249,14 +257,14 @@ def create_drive():
         return redirect("/")
     if request.method == "POST":
         title = request.form["title"]
-        desc = request.form["description"]
-        eligibility = request.form["eligibility"]
-        deadline = request.form.get("deadline")
+        skills = request.form["skills"]
+        experience = request.form["experience"]
+        salary = request.form["salary"]
         db = get_db()
         db.execute("""
-        INSERT INTO drives(company_id,job_title,description,eligibility,deadline)
+        INSERT INTO drives(company_id, job_title, skills, experience, salary)
         VALUES(?,?,?,?,?)
-        """,(session["company"],title,desc,eligibility,deadline))
+    """,(session["company"], title, skills, experience, salary))
         db.commit()
         return redirect("/company/dashboard")
     return render_template("company/create_drive.html")
@@ -277,20 +285,45 @@ def delete_drive(id):
     db.execute("DELETE FROM drives WHERE id=?", (id,))
     db.commit()
     return redirect("/company/dashboard")
-
+@app.route("/company/shortlisted/<int:drive_id>")
+def company_shortlisted(drive_id):
+    if "company" not in session:
+        return redirect("/")
+    db = get_db()
+    apps = db.execute("""
+    SELECT applications.*, 
+           students.name, 
+           students.resume,
+           drives.job_title
+    FROM applications
+    JOIN students ON applications.student_id = students.id
+    JOIN drives ON applications.drive_id = drives.id
+    WHERE drives.company_id=? 
+    AND drives.id=? 
+    AND applications.status='Shortlisted'
+    """, (session["company"], drive_id)).fetchall()
+    return render_template("company/shortlisted.html", apps=apps)
 
 @app.route("/student/dashboard")
 def student_dashboard():
     if "student" not in session:
         return redirect("/")
     db = get_db()
+    # Get all approved jobs
     drives = db.execute("""
     SELECT drives.*, companies.name as company
     FROM drives
     JOIN companies ON drives.company_id = companies.id
     WHERE drives.status='approved'
     """).fetchall()
-    return render_template("student/dashboard.html",drives=drives)
+    # Get applied jobs
+    applied = db.execute("""
+        SELECT drive_id FROM applications 
+        WHERE student_id=?
+    """, (session["student"],)).fetchall()
+    applied_ids = [a["drive_id"] for a in applied]
+    return render_template("student/dashboard.html",drives=drives,applied_ids=applied_ids)
+
 
 @app.route("/student/profile", methods=["GET","POST"])
 def student_profile():
@@ -310,41 +343,60 @@ def student_profile():
     return render_template("student/profile.html", student=student)
 
 @app.route("/apply/<int:drive_id>", methods=["GET", "POST"])
-def apply(drive_id):
+def apply_job(drive_id):
     if "student" not in session:
         return redirect("/")
     db = get_db()
-    # Get drive details
+    student_id = session["student"]
     drive = db.execute("""
         SELECT drives.*, companies.name as company
         FROM drives
         JOIN companies ON drives.company_id = companies.id
         WHERE drives.id=?
     """, (drive_id,)).fetchone()
-    if not drive:
-        return "Drive not found"
-    # 🚨 POST → Appl
     if request.method == "POST":
-        # 1️⃣ Check duplicate
         existing = db.execute("""
-            SELECT * FROM applications
+            SELECT 1 FROM applications 
             WHERE student_id=? AND drive_id=?
-        """, (session["student"], drive_id)).fetchone()
-        if existing:
-            return "Already applied"
-        # 2️⃣ Check deadline
-        deadline = datetime.datetime.strptime(drive["deadline"], "%Y-%m-%d").date()
-        if datetime.date.today() > deadline:
-            return "Deadline passed"
-        # 3️⃣ Insert
-        db.execute("""
-            INSERT INTO applications(student_id, drive_id, application_date)
-            VALUES (?, ?, ?)
-        """, (session["student"], drive_id, str(datetime.date.today())))
-        db.commit()
-        return redirect("/student/applications")
-    # ✅ GET → Show confirmation page
+        """, (student_id, drive_id)).fetchone()
+        if not existing:
+            db.execute("""
+                INSERT INTO applications(student_id, drive_id, status)
+                VALUES(?, ?, 'Applied')
+            """, (student_id, drive_id))
+            db.commit()
+        return redirect("/student/dashboard")
     return render_template("student/apply.html", drive=drive)
+
+@app.route("/student/search")
+def student_search():
+    if "student" not in session:
+        return redirect("/")
+    query = request.args.get("q", "").strip()
+    db = get_db()
+    if query:
+        drives = db.execute("""
+        SELECT drives.*, companies.name as company
+        FROM drives
+        JOIN companies ON drives.company_id = companies.id
+        WHERE drives.status='approved'
+        AND (
+            companies.name LIKE ? OR
+            drives.job_title LIKE ? OR
+            drives.skills LIKE ?
+        )
+        """, ('%'+query+'%', '%'+query+'%', '%'+query+'%')).fetchall()
+    else:
+        drives = db.execute("""
+        SELECT drives.*, companies.name as company
+        FROM drives
+        JOIN companies ON drives.company_id = companies.id
+        WHERE drives.status='approved'
+        """).fetchall()
+    return render_template("student/search.html",
+                           drives=drives,
+                           query=query)
+
 
 @app.route("/student/applications")
 def student_applications():
