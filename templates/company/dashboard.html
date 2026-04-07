@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Company Dashboard</h2>
+<div align="center">
+<a class="login"href="/company/create_drive">
+    Create Placement Drive
+</a></div>
+<h2>Drives</h2>
+<table class="table-border">
+    <tr>
+        <th>Job Title</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Applications</th>
+        <th>Actions</th>
+    </tr>
+    {% for d in drives %}
+    <tr>
+        <td>{{ d.job_title }}</td>
+        <td>{{ d.description }}</td>
+        <td>{{ d.status }}</td>
+        <td>
+            <a href="/company/applications/{{ d.id }}">
+                View Applications
+            </a>
+        </td>
+        <td>
+    <a href="/company/delete_drive/{{ d.id }}">Delete</a> |
+    <a href="/company/close_drive/{{ d.id }}">Close</a>
+</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

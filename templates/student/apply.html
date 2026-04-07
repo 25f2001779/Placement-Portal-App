@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Apply for Placement Drive</h2>
+<table class="table-border">
+    <tr>
+        <th>Job Title: </th>
+        <td>{{ drive.job_title }}</td>
+    </tr>
+    <tr>
+        <th>Company:</th>
+        <td>{{ drive.company }}</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>{{ drive.description }}</td>
+    </tr>
+    <tr>
+        <th>Eligibility:</th>
+        <td>{{ drive.eligibility }}</td>
+    </tr>
+    <tr>
+        <th>Deadline:</th>
+        <td>{{ drive.deadline }}</td>
+    </tr>
+</table>
+<form method="POST">
+    <button class="login submit">Confirm Apply</button>
+    <a class="login" href="/student/dashboard">Cancel</a>
+</form>
+{% endblock %}

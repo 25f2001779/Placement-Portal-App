@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard">
+    <a href="/student/applications">My Applications</a> |
+    <a href="/student/profile">My Profile</a>
+</div>
+<h2>Available Placement Drives</h2>
+<table class="table-border">
+    <tr>
+        <th>Company</th>
+        <th>Job Title</th>
+        <th>Description</th>
+        <th>Eligibility</th>
+        <th>Deadline</th>
+        <th>Action</th>
+    </tr>
+    {% for d in drives %}
+    <tr>
+        <td>{{ d.company }}</td>
+        <td>{{ d.job_title }}</td>
+        <td>{{ d.description }}</td>
+        <td>{{ d.eligibility }}</td>
+        <td>{{ d.deadline }}</td>
+        <td>
+            <a href="/apply/{{ d.id }}">Apply</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
