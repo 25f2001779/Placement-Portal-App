@@ -1,30 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
+<h2>Student Dashboard</h2>
 <div class="dashboard">
+    <a href="/student/profile">My Profile</a> | 
     <a href="/student/applications">My Applications</a> |
-    <a href="/student/profile">My Profile</a>
+    <a href="/student/search">Search Jobs</a>     
 </div>
-<h2>Available Placement Drives</h2>
+<br>
 <table class="table-border">
-    <tr>
-        <th>Company</th>
-        <th>Job Title</th>
-        <th>Description</th>
-        <th>Eligibility</th>
-        <th>Deadline</th>
-        <th>Action</th>
-    </tr>
-    {% for d in drives %}
-    <tr>
-        <td>{{ d.company }}</td>
-        <td>{{ d.job_title }}</td>
-        <td>{{ d.description }}</td>
-        <td>{{ d.eligibility }}</td>
-        <td>{{ d.deadline }}</td>
-        <td>
+<tr>
+    <th>Company</th>
+    <th>Job Title</th>
+    <th>Skills</th>
+    <th>Experience</th>
+    <th>Salary</th>
+    <th>Action</th>
+</tr>
+{% for d in drives %}
+<tr>
+    <td>{{ d.company }}</td>
+    <td>{{ d.job_title }}</td>
+    <td>{{ d.skills }}</td>
+    <td>{{ d.experience }}</td>
+    <td>{{ d.salary }}</td>
+    <td>
+        {% if d.id in applied_ids %}
+            <span>Applied</span>
+        {% else %}
             <a href="/apply/{{ d.id }}">Apply</a>
-        </td>
-    </tr>
-    {% endfor %}
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
 </table>
 {% endblock %}
