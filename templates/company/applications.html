@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Applications</h2>
+<table class="table-border">
+    <tr>
+        <th>Student</th>
+        <th>Status</th>
+        <th>Action</th>
+        <th>Resume</th>
+    </tr>
+    {% for a in apps %}
+    <tr>
+        <td>{{ a.name }}</td>
+        <td>{{ a.status }}</td>
+        <td>
+            <a href="/company/update_status/{{ a.id }}/Shortlisted">Shortlist</a> |
+            <a href="/company/update_status/{{ a.id }}/Selected">Select</a> |
+            <a href="/company/update_status/{{ a.id }}/Rejected">Reject</a>
+        </td>
+        <td>
+        {% if a.resume %}
+            <a href="{{ a.resume }}" target="_blank">View Resume</a>
+        {% else %}
+            No Resume
+        {% endif %}
+    </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

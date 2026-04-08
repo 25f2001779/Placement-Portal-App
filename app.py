@@ -209,6 +209,102 @@ def admin_applications():
     """).fetchall()
     return render_template("admin/applications.html", applications=applications)
 
+#COMPANY
+
+@app.route("/company/dashboard")
+def company_dashboard():
+    if "company" not in session:
+        return redirect("/")
+    db = get_db()
+    drives = db.execute("""
+        SELECT * FROM drives
+        WHERE company_id=?
+    """, (session["company"],)).fetchall()
+    return render_template("company/dashboard.html", drives=drives)
+
+@app.route("/company/update_status/<int:app_id>/<status>")
+def update_status(app_id, status):
+    if "company" not in session:
+        return redirect("/")
+    db = get_db()
+    db.execute("""
+        UPDATE applications
+        SET status=?
+        WHERE id=?
+    """, (status, app_id))
+    db.commit()
+    return redirect(request.referrer)
+
+@app.route("/company/applications/<int:drive_id>")
+def company_applications(drive_id):
+    if "company" not in session:
+        return redirect("/")
+    db = get_db()
+    apps = db.execute("""
+    SELECT applications.*, 
+           students.name, 
+           students.resume,
+           drives.job_title
+    FROM applications
+    JOIN students ON applications.student_id = students.id
+    JOIN drives ON applications.drive_id = drives.id
+    WHERE drives.company_id=? 
+    AND drives.id=?
+    """, (session["company"], drive_id)).fetchall()
+    return render_template("company/applications.html", apps=apps)
+
+@app.route("/company/create_drive", methods=["GET","POST"])
+def create_drive():
+    if "company" not in session:
+        return redirect("/")
+    if request.method == "POST":
+        title = request.form["title"]
+        skills = request.form["skills"]
+        experience = request.form["experience"]
+        salary = request.form["salary"]
+        db = get_db()
+        db.execute("""
+        INSERT INTO drives(company_id, job_title, skills, experience, salary)
+        VALUES(?,?,?,?,?)
+    """,(session["company"], title, skills, experience, salary))
+        db.commit()
+        return redirect("/company/dashboard")
+    return render_template("company/create_drive.html")
+
+@app.route("/company/close_drive/<int:id>")
+def close_drive(id):
+    db = get_db()
+    db.execute("""
+        UPDATE drives SET status='closed'
+        WHERE id=?
+    """,(id,))
+    db.commit()
+    return redirect("/company/dashboard")
+
+@app.route("/company/delete_drive/<int:id>")
+def delete_drive(id):
+    db = get_db()
+    db.execute("DELETE FROM drives WHERE id=?", (id,))
+    db.commit()
+    return redirect("/company/dashboard")
+@app.route("/company/shortlisted/<int:drive_id>")
+def company_shortlisted(drive_id):
+    if "company" not in session:
+        return redirect("/")
+    db = get_db()
+    apps = db.execute("""
+    SELECT applications.*, 
+           students.name, 
+           students.resume,
+           drives.job_title
+    FROM applications
+    JOIN students ON applications.student_id = students.id
+    JOIN drives ON applications.drive_id = drives.id
+    WHERE drives.company_id=? 
+    AND drives.id=? 
+    AND applications.status='Shortlisted'
+    """, (session["company"], drive_id)).fetchall()
+    return render_template("company/shortlisted.html", apps=apps)
 
 if __name__ == "__main__":
     app.run(debug=True)
