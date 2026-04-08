@@ -1,33 +1,29 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placement Portal</title>
-    <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-    <div>
-        <h2 class="head">Placement Portal Login</h2>
-        <div align="center">
-            <form method="POST">
-                <input class="login" name="email" placeholder="Email or Username">
-                <input class="login" type="password" name="password" placeholder="Password">
-                <select name="role" class="login">
-                    <option value="admin">Admin</option>
-                    <option value="student">Student</option>
-                    <option value="company">Company</option>
-                </select>
-                <button class="login submit">Login</button>
-            </form>
-            <br>
-            <div class="login">
-                <a href="/register/student">Register Student</a> |
-                <a href="/register/company">Register Company</a>
-            </div>
+    <h2 class="head">Placement Portal Login</h2>
+    <div align="center">
+        <form method="POST">
+            <input class="login" name="email" placeholder="Email or Username">
+            <input class="login" type="password" name="password" placeholder="Password">
+            <select name="role" class="login">
+                <option value="admin">Admin</option>
+                <option value="student">Student</option>
+                <option value="company">Company</option>
+            </select>
+            <button class="login submit">Login</button>
+        </form>
+        <br>
+        <div class="login">
+            <a href="/register/student">Register Student</a> |
+            <a href="/register/company">Register Company</a>
         </div>
     </div>
 </body>
-
 </html>

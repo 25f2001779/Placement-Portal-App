@@ -18,12 +18,12 @@
             <a href="/company/update_status/{{ a.id }}/Rejected">Reject</a>
         </td>
         <td>
-        {% if a.resume %}
+            {% if a.resume %}
             <a href="{{ a.resume }}" target="_blank">View Resume</a>
-        {% else %}
+            {% else %}
             No Resume
-        {% endif %}
-    </td>
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>

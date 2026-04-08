@@ -17,11 +17,11 @@
         <td>{{ s.email }}</td>
         <td>{{ s.contact }}</td>
         <td>
-        {% if s.resume %}
-        <a href="{{ s.resume }}" target="_blank">View Resume</a>
-        {% else %}
-        No Resume
-        {% endif %}
+            {% if s.resume %}
+            <a href="{{ s.resume }}" target="_blank">View Resume</a>
+            {% else %}
+            No Resume
+            {% endif %}
         </td>
         <td>
             <a href="/admin/blacklist_student/{{ s.id }}">Blacklist</a>

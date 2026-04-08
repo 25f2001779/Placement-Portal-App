@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placement Portal</title>
-    <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<nav>
+    <nav>
+        <div>
+            <a class="head" href="/">Placement Portal</a>
+        </div>
+    </nav>
     <div>
-        <a class="head" href="/">Placement Portal</a>
+        {% block content %}
+        {% endblock %}
     </div>
-</nav>
-<div>
-{% block content %}
-{% endblock %}
-</div>
 </body>
-</html> 
+</html>
