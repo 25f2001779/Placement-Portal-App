@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>All Applications</h2>
+<table class="table-border">
+    <tr>
+        <th>ID</th>
+        <th>Student</th>
+        <th>Company</th>
+        <th>Job</th>
+        <th>Status</th>
+    </tr>
+    {% for a in applications %}
+    <tr>
+        <td>{{ a.id }}</td>
+        <td>{{ a.student_name }}</td>
+        <td>{{ a.company_name }}</td>
+        <td>{{ a.job_title }}</td>
+        <td>{{ a.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
