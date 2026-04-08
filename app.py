@@ -250,6 +250,7 @@ def company_applications(drive_id):
     JOIN drives ON applications.drive_id = drives.id
     WHERE drives.company_id=? 
     AND drives.id=?
+    AND students.status != 'blacklisted'
     """, (session["company"], drive_id)).fetchall()
     return render_template("company/applications.html", apps=apps)
 
@@ -303,6 +304,7 @@ def company_shortlisted(drive_id):
     WHERE drives.company_id=? 
     AND drives.id=? 
     AND applications.status='Shortlisted'
+    AND students.status != 'blacklisted'
     """, (session["company"], drive_id)).fetchall()
     return render_template("company/shortlisted.html", apps=apps)
 
@@ -319,6 +321,7 @@ def student_dashboard():
     FROM drives
     JOIN companies ON drives.company_id = companies.id
     WHERE drives.status='approved'
+    AND companies.status != 'blacklisted'
     """).fetchall()
     # Get applied jobs
     applied = db.execute("""
@@ -383,6 +386,7 @@ def student_search():
         FROM drives
         JOIN companies ON drives.company_id = companies.id
         WHERE drives.status='approved'
+        AND companies.status != 'blacklisted'
         AND (
             companies.name LIKE ? OR
             drives.job_title LIKE ? OR

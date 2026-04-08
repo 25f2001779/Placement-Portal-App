@@ -26,11 +26,11 @@
         </td>
         <td>
             <a href="/company/delete_drive/{{ d.id }}" onclick="return confirm('Are you sure?')">
-                Delete |
+                Delete
             </a>
             {% if d.status == "approved" %}
             <a href="/company/close_drive/{{ d.id }}">
-                Close
+                | Close
             </a>
             {% endif %}
         </td>
