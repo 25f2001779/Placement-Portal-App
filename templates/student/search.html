@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Search Jobs</h2>
+<form method="GET" action="/student/search" align="center">
+    <input class="search" name="q" placeholder="Search by company, title, skills" value="{{ query or '' }}">
+    <button class="admin-dash login submit">Search</button>
+</form>
+<br>
+<table class="table-border">
+    <tr>
+        <th>Company</th>
+        <th>Job Title</th>
+        <th>Skills</th>
+        <th>Experience</th>
+        <th>Salary</th>
+        <th>Action</th>
+    </tr>
+    {% for d in drives %}
+    <tr>
+        <td>{{ d.company }}</td>
+        <td>{{ d.job_title }}</td>
+        <td>{{ d.skills }}</td>
+        <td>{{ d.experience }}</td>
+        <td>{{ d.salary }}</td>
+        <td>
+            <a href="/apply/{{ d.id }}">Apply</a>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="6">No jobs found</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<div align="center">
+    <a href="/student/dashboard">Back to Dashboard</a>
+</div>
+{% endblock %}
