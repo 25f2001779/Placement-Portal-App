@@ -288,6 +288,7 @@ def delete_drive(id):
     db.execute("DELETE FROM drives WHERE id=?", (id,))
     db.commit()
     return redirect("/company/dashboard")
+
 @app.route("/company/shortlisted/<int:drive_id>")
 def company_shortlisted(drive_id):
     if "company" not in session:
@@ -315,7 +316,6 @@ def student_dashboard():
     if "student" not in session:
         return redirect("/")
     db = get_db()
-    # Get all approved jobs
     drives = db.execute("""
     SELECT drives.*, companies.name as company
     FROM drives
@@ -323,7 +323,6 @@ def student_dashboard():
     WHERE drives.status='approved'
     AND companies.status != 'blacklisted'
     """).fetchall()
-    # Get applied jobs
     applied = db.execute("""
         SELECT drive_id FROM applications 
         WHERE student_id=?
